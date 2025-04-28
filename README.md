@@ -76,6 +76,4 @@ This project is licensed under the MIT License.
 
 ---
 
-## 🙌 Credits
-Made with ❤️ using Laravel by Shashwat
 
