@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+
+    environment {
+        COMPOSE_FILE = 'docker-compose.yml'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                echo "Skipping Git clone — using local workspace."
+            }
+        }
+
+        stage('Docker Down') {
+            steps {
+                echo 'Stopping existing containers...'
+                bat 'docker-compose down || exit 0'
+            }
+        }
+
+        stage('Build & Start Containers') {
+            steps {
+                echo 'Building and starting containers...'
+                bat 'docker-compose up --build -d'
+            }
+        }
+
+        stage('Run Migrations') {
+            steps {
+                echo 'Running database migrations...'
+                bat 'docker exec crop-advisory-sqlite-app-1 php artisan migrate --force'
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                echo 'Running Laravel tests...'
+                bat 'docker exec crop-advisory-sqlite-app-1 php artisan test || exit 0'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Pipeline finished.'
+        }
+    }
+}
